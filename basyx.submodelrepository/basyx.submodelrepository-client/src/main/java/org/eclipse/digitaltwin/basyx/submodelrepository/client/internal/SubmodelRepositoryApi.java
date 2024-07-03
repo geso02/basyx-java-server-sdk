@@ -43,6 +43,9 @@ import org.eclipse.digitaltwin.basyx.client.internal.ApiClient;
 import org.eclipse.digitaltwin.basyx.client.internal.ApiException;
 import org.eclipse.digitaltwin.basyx.client.internal.ApiResponse;
 import org.eclipse.digitaltwin.basyx.client.internal.Pair;
+import org.eclipse.digitaltwin.basyx.client.internal.authorization.TokenManager;
+import org.eclipse.digitaltwin.basyx.core.pagination.CursorResult;
+import org.eclipse.digitaltwin.basyx.http.pagination.Base64UrlEncodedCursorResult;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -59,17 +62,35 @@ public class SubmodelRepositoryApi {
 	private final Duration memberVarReadTimeout;
 	private final Consumer<HttpResponse<InputStream>> memberVarResponseInterceptor;
 	private final Consumer<HttpResponse<String>> memberVarAsyncResponseInterceptor;
+	private HttpRequest.Builder httpRequestBuilder;
 
 	public SubmodelRepositoryApi() {
 		this(new ApiClient());
 	}
+	
+	public SubmodelRepositoryApi(HttpRequest.Builder httpRequestBuilder) {
+		this();
+		this.httpRequestBuilder = httpRequestBuilder;
+	}
 
 	public SubmodelRepositoryApi(ObjectMapper mapper, String baseUri) {
 		this(new ApiClient(HttpClient.newBuilder(), mapper, baseUri));
+		this.httpRequestBuilder = HttpRequest.newBuilder();
+	}
+	
+	public SubmodelRepositoryApi(ObjectMapper mapper, String baseUri, HttpRequest.Builder httpRequestBuilder) {
+		this(mapper, baseUri);
+		this.httpRequestBuilder = httpRequestBuilder;
 	}
 
 	public SubmodelRepositoryApi(String baseUri) {
 		this(new ApiClient(HttpClient.newBuilder(), new JsonMapperFactory().create(new SimpleAbstractTypeResolverFactory().create()), baseUri));
+		this.httpRequestBuilder = HttpRequest.newBuilder();
+	}
+	
+	public SubmodelRepositoryApi(String baseUri, HttpRequest.Builder httpRequestBuilder) {
+		this(baseUri);
+		this.httpRequestBuilder = httpRequestBuilder;
 	}
 
 	public SubmodelRepositoryApi(ApiClient apiClient) {
@@ -181,7 +202,7 @@ public class SubmodelRepositoryApi {
 			throw new ApiException(400, "Missing the required parameter 'submodelIdentifier' when calling getSubmodelById");
 		}
 
-		HttpRequest.Builder localVarRequestBuilder = HttpRequest.newBuilder();
+		HttpRequest.Builder localVarRequestBuilder = this.httpRequestBuilder.copy();
 
 		String localVarPath = "/submodels/{submodelIdentifier}".replace("{submodelIdentifier}", ApiClient.urlEncode(submodelIdentifier.toString()));
 
@@ -285,7 +306,7 @@ public class SubmodelRepositoryApi {
 			throw new ApiException(400, "Missing the required parameter 'submodel' when calling postSubmodel");
 		}
 
-		HttpRequest.Builder localVarRequestBuilder = HttpRequest.newBuilder();
+		HttpRequest.Builder localVarRequestBuilder = this.httpRequestBuilder.copy();
 
 		String localVarPath = "/submodels";
 
@@ -389,7 +410,7 @@ public class SubmodelRepositoryApi {
 			throw new ApiException(400, "Missing the required parameter 'submodel' when calling putSubmodelById");
 		}
 
-		HttpRequest.Builder localVarRequestBuilder = HttpRequest.newBuilder();
+		HttpRequest.Builder localVarRequestBuilder = this.httpRequestBuilder.copy();
 
 		String localVarPath = "/submodels/{submodelIdentifier}".replace("{submodelIdentifier}", ApiClient.urlEncode(submodelIdentifier.toString()));
 
@@ -483,7 +504,7 @@ public class SubmodelRepositoryApi {
 			throw new ApiException(400, "Missing the required parameter 'submodelIdentifier' when calling deleteSubmodelById");
 		}
 
-		HttpRequest.Builder localVarRequestBuilder = HttpRequest.newBuilder();
+		HttpRequest.Builder localVarRequestBuilder = this.httpRequestBuilder.copy();
 
 		String localVarPath = "/submodels/{submodelIdentifier}".replace("{submodelIdentifier}", ApiClient.urlEncode(submodelIdentifier.toString()));
 
@@ -492,6 +513,106 @@ public class SubmodelRepositoryApi {
 		localVarRequestBuilder.header("Accept", "application/json");
 
 		localVarRequestBuilder.method("DELETE", HttpRequest.BodyPublishers.noBody());
+		if (memberVarReadTimeout != null) {
+			localVarRequestBuilder.timeout(memberVarReadTimeout);
+		}
+		if (memberVarInterceptor != null) {
+			memberVarInterceptor.accept(localVarRequestBuilder);
+		}
+		return localVarRequestBuilder;
+	}
+
+	/**
+	 * Returns all Submodels
+	 * 
+	 * @param semanticId
+	 *            The value of the semantic id reference (BASE64-URL-encoded)
+	 *            (optional)
+	 * @param idShort
+	 *            The Asset Administration Shell’s IdShort (optional)
+	 * @param limit
+	 *            The maximum number of elements in the response array (optional)
+	 * @param cursor
+	 *            A server-generated identifier retrieved from pagingMetadata that
+	 *            specifies from which position the result listing should continue
+	 *            (optional)
+	 * @param level
+	 *            Determines the structural depth of the respective resource content
+	 *            (optional, default to deep)
+	 * @param extent
+	 *            Determines to which extent the resource is being serialized
+	 *            (optional, default to withoutBlobValue)
+	 * @return GetSubmodelsResult
+	 * @throws ApiException
+	 *             if fails to make API call
+	 */
+	public CursorResult<List<Submodel>> getAllSubmodels(String semanticId, String idShort, Integer limit, String cursor, String level, String extent) throws ApiException {
+		ApiResponse<Base64UrlEncodedCursorResult<List<Submodel>>> localVarResponse = getAllSubmodelsApiResponse(semanticId, idShort, limit, cursor, level, extent);
+
+		return localVarResponse.getData();
+	}
+
+	private ApiResponse<Base64UrlEncodedCursorResult<List<Submodel>>> getAllSubmodelsApiResponse(String semanticId, String idShort, Integer limit, String cursor, String level, String extent) throws ApiException {
+		HttpRequest.Builder localVarRequestBuilder = getAllSubmodelsRequestBuilder(semanticId, idShort, limit, cursor, level, extent);
+		try {
+			HttpResponse<InputStream> localVarResponse = memberVarHttpClient.send(localVarRequestBuilder.build(), HttpResponse.BodyHandlers.ofInputStream());
+			if (memberVarResponseInterceptor != null) {
+				memberVarResponseInterceptor.accept(localVarResponse);
+			}
+			try {
+				if (localVarResponse.statusCode() / 100 != 2) {
+					throw getApiException("getAllSubmodels", localVarResponse);
+				}
+				return new ApiResponse<>(localVarResponse.statusCode(), localVarResponse.headers().map(),
+						localVarResponse.body() == null ? null : memberVarObjectMapper.readValue(localVarResponse.body(), new TypeReference<Base64UrlEncodedCursorResult<List<Submodel>>>() {
+						}) // closes the InputStream
+				);
+			} finally {
+			}
+		} catch (IOException e) {
+			throw new ApiException(e);
+		} catch (InterruptedException e) {
+			Thread.currentThread().interrupt();
+			throw new ApiException(e);
+		}
+	}
+
+	private HttpRequest.Builder getAllSubmodelsRequestBuilder(String semanticId, String idShort, Integer limit, String cursor, String level, String extent) throws ApiException {
+
+		HttpRequest.Builder localVarRequestBuilder = this.httpRequestBuilder.copy();
+
+		String localVarPath = "/submodels";
+
+		List<Pair> localVarQueryParams = new ArrayList<>();
+		StringJoiner localVarQueryStringJoiner = new StringJoiner("&");
+		String localVarQueryParameterBaseName;
+		localVarQueryParameterBaseName = "semanticId";
+		localVarQueryParams.addAll(ApiClient.parameterToPairs("semanticId", semanticId));
+		localVarQueryParameterBaseName = "idShort";
+		localVarQueryParams.addAll(ApiClient.parameterToPairs("idShort", idShort));
+		localVarQueryParameterBaseName = "limit";
+		localVarQueryParams.addAll(ApiClient.parameterToPairs("limit", limit));
+		localVarQueryParameterBaseName = "cursor";
+		localVarQueryParams.addAll(ApiClient.parameterToPairs("cursor", cursor));
+		localVarQueryParameterBaseName = "level";
+		localVarQueryParams.addAll(ApiClient.parameterToPairs("level", level));
+		localVarQueryParameterBaseName = "extent";
+		localVarQueryParams.addAll(ApiClient.parameterToPairs("extent", extent));
+
+		if (!localVarQueryParams.isEmpty() || localVarQueryStringJoiner.length() != 0) {
+			StringJoiner queryJoiner = new StringJoiner("&");
+			localVarQueryParams.forEach(p -> queryJoiner.add(p.getName() + '=' + p.getValue()));
+			if (localVarQueryStringJoiner.length() != 0) {
+				queryJoiner.add(localVarQueryStringJoiner.toString());
+			}
+			localVarRequestBuilder.uri(URI.create(memberVarBaseUri + localVarPath + '?' + queryJoiner.toString()));
+		} else {
+			localVarRequestBuilder.uri(URI.create(memberVarBaseUri + localVarPath));
+		}
+
+		localVarRequestBuilder.header("Accept", "application/json");
+
+		localVarRequestBuilder.method("GET", HttpRequest.BodyPublishers.noBody());
 		if (memberVarReadTimeout != null) {
 			localVarRequestBuilder.timeout(memberVarReadTimeout);
 		}

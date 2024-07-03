@@ -52,11 +52,15 @@ public class AasDescriptorFactory {
 	private static final String AAS_INTERFACE = "AAS-3.0";
 	private static final String AAS_REPOSITORY_PATH = "shells";
 
-	private final AssetAdministrationShell shell;
+	private AssetAdministrationShell shell;
 	private final List<String> aasRepositoryURLs;
 
 	private final AttributeMapper attributeMapper;
 
+	public AasDescriptorFactory(AssetAdministrationShell shell, String aasRepositoryBaseURL, AttributeMapper attributeMapper) {
+		this(shell, List.of(aasRepositoryBaseURL), attributeMapper);
+	}
+	
 	public AasDescriptorFactory(AssetAdministrationShell shell, List<String> aasRepositoryBaseURLs, AttributeMapper attributeMapper) {
 		super();
 		this.shell = shell;
@@ -94,6 +98,11 @@ public class AasDescriptorFactory {
 		setGlobalAssetId(shell.getAssetInformation(), descriptor);
 
 		return descriptor;
+	}
+
+	public AssetAdministrationShellDescriptor create(AssetAdministrationShell shell) {
+		this.shell = shell;
+		return create();
 	}
 
 	private void setDescription(List<LangStringTextType> descriptions, AssetAdministrationShellDescriptor descriptor) {

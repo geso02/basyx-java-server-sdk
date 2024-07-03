@@ -39,18 +39,18 @@ import org.eclipse.digitaltwin.basyx.aasservice.client.ConnectedAasService;
 import org.eclipse.digitaltwin.basyx.client.internal.ApiException;
 import org.eclipse.digitaltwin.basyx.core.exceptions.CollidingIdentifierException;
 import org.eclipse.digitaltwin.basyx.core.exceptions.ElementDoesNotExistException;
-import org.eclipse.digitaltwin.basyx.core.exceptions.FeatureNotImplementedException;
 import org.eclipse.digitaltwin.basyx.core.exceptions.IdentificationMismatchException;
 import org.eclipse.digitaltwin.basyx.core.exceptions.MissingIdentifierException;
 import org.eclipse.digitaltwin.basyx.core.pagination.CursorResult;
 import org.eclipse.digitaltwin.basyx.core.pagination.PaginationInfo;
 import org.eclipse.digitaltwin.basyx.http.Base64UrlEncodedIdentifier;
+import org.eclipse.digitaltwin.basyx.http.Base64UrlEncoder;
 import org.springframework.http.HttpStatus;
 
 /**
  * Provides access to an Aas Repository on a remote server
  * 
- * @author schnicke
+ * @author schnicke, mateusmolina
  */
 public class ConnectedAasRepository implements AasRepository {
 
@@ -66,13 +66,20 @@ public class ConnectedAasRepository implements AasRepository {
 		this.aasRepoUrl = repoUrl;
 		this.repoApi = new AssetAdministrationShellRepositoryApi(repoUrl);
 	}
+	
+	public ConnectedAasRepository(String repoUrl, AssetAdministrationShellRepositoryApi assetAdministrationShellRepositoryApi) {
+		this.aasRepoUrl = repoUrl;
+		this.repoApi = assetAdministrationShellRepositoryApi;
+	}
+	
+	public String getBaseUrl() {
+		return aasRepoUrl;
+	}
 
-	/**
-	 * Not implemented
-	 */
 	@Override
 	public CursorResult<List<AssetAdministrationShell>> getAllAas(PaginationInfo pInfo) {
-		throw new FeatureNotImplementedException();
+		String encodedCursor = pInfo.getCursor() == null ? null : Base64UrlEncoder.encode(pInfo.getCursor());
+		return repoApi.getAllAssetAdministrationShells(null, null, pInfo.getLimit(), encodedCursor);
 	}
 
 	@Override
@@ -152,31 +159,22 @@ public class ConnectedAasRepository implements AasRepository {
 		return getConnectedAasService(aasId).getAssetInformation();
 	}
 
-	/**
-	 * Not implemented
-	 */
 	@Override
 	public File getThumbnail(String aasId) {
-		throw new FeatureNotImplementedException();
+		return getConnectedAasService(aasId).getThumbnail();
 	}
 
-	/**
-	 * Not implemented
-	 */
 	@Override
 	public void setThumbnail(String aasId, String fileName, String contentType, InputStream inputStream) {
-		throw new FeatureNotImplementedException();
+		getConnectedAasService(aasId).setThumbnail(fileName, contentType, inputStream);
 	}
 
-	/**
-	 * Not implemented
-	 */
 	@Override
 	public void deleteThumbnail(String aasId) {
-		throw new FeatureNotImplementedException();
+		getConnectedAasService(aasId).deleteThumbnail();
 	}
 
-	private String getAasUrl(String aasId) {
+	protected String getAasUrl(String aasId) {
 		return aasRepoUrl + "/shells/" + Base64UrlEncodedIdentifier.encodeIdentifier(aasId);
 	}
 
@@ -188,7 +186,7 @@ public class ConnectedAasRepository implements AasRepository {
 		return mapExceptionAasAccess(aasId, e);
 	}
 
-	private RuntimeException mapExceptionAasAccess(String aasId, ApiException e) {
+	protected RuntimeException mapExceptionAasAccess(String aasId, ApiException e) {
 		if (e.getCode() == HttpStatus.NOT_FOUND.value()) {
 			return new ElementDoesNotExistException(aasId);
 		} else if (e.getCode() == HttpStatus.CONFLICT.value()) {

@@ -52,11 +52,15 @@ public class SubmodelDescriptorFactory {
 	private static final String SUBMODEL_INTERFACE = "SUBMODEL-3.0";
 	private static final String SUBMODEL_REPOSITORY_PATH = "submodels";
 
-	private final Submodel submodel;
+	private Submodel submodel;
 	private final List<String> submodelRepositoryURLs;
 
 	private final AttributeMapper attributeMapper;
 
+	public SubmodelDescriptorFactory(Submodel submodel, String submodelRepositoryBaseURL, AttributeMapper attributeMapper) {
+		this(submodel, List.of(submodelRepositoryBaseURL), attributeMapper);
+	}
+	
 	public SubmodelDescriptorFactory(Submodel submodel, List<String> submodelRepositoryBaseURLs, AttributeMapper attributeMapper) {
 		super();
 		this.submodel = submodel;
@@ -92,6 +96,11 @@ public class SubmodelDescriptorFactory {
 		setSupplementalSemanticId(submodel.getSupplementalSemanticIds(), descriptor);
 
 		return descriptor;
+	}
+
+	public SubmodelDescriptor create(Submodel submodel) {
+		this.submodel = submodel;
+		return create();
 	}
 
 	private void setDescription(List<LangStringTextType> descriptions, SubmodelDescriptor descriptor) {
