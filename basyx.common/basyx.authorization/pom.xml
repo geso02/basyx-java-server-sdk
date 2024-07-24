@@ -11,7 +11,7 @@
 	</parent>
 
 	<artifactId>basyx.authorization</artifactId>
-	
+
 	<name>BaSyx Authorization Base</name>
 	<description>BaSyx Authorization Base</description>
 

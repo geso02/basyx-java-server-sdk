@@ -15,7 +15,6 @@
 	</parent>
 
 	<properties>
-		<lombok.maven-plugin.version>1.18.20.0</lombok.maven-plugin.version>
 		<maven.compiler.source>${java.version}</maven.compiler.source>
 		<maven.compiler.target>${java.version}</maven.compiler.target>
 		<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -27,7 +26,7 @@
 			Plattform_i40-AssetAdministrationShellRegistryServiceSpecification-V3.0.1_SSP-001-resolved.yaml
 		</openapi.base.name>
 		<openapi.name>Plattform_i40-Registry-and-Discovery.yaml</openapi.name>
-		<guava.version>32.0.0-jre</guava.version>
+		<guava.version>33.2.1-jre</guava.version>
 		<maven-plugin.version>3.9.0</maven-plugin.version>
 		<maven-project.version>3.0-alpha-2</maven-project.version>
 		<mustache.compiler.version>0.9.4</mustache.compiler.version>
@@ -40,9 +39,11 @@
 	</properties>
 
 	<modules>
+		<!-- Disabled for now - because submodels are not stored anymore - only the references - 
+		there is no advantage of using the path here.
 		<module>basyx.aasregistry-plugins</module>
-		<module>basyx.aasregistry-service-basemodel</module>
-		<module>basyx.aasregistry-client-native</module>
+		<module>basyx.aasregistry-client-native</module>-->
+		<module>basyx.aasregistry-service-basemodel</module>		
 		<module>basyx.aasregistry-paths</module>
 		<module>basyx.aasregistry-service</module>
 		<module>basyx.aasregistry-service-basetests</module>
@@ -235,18 +236,6 @@
 										<source>src/main/generated</source>
 									</sources>
 								</configuration>
-							</execution>
-						</executions>
-					</plugin>
-					<plugin>
-						<groupId>org.projectlombok</groupId>
-						<artifactId>lombok-maven-plugin</artifactId>
-						<executions>
-							<execution>
-								<phase>generate-sources</phase>
-								<goals>
-									<goal>delombok</goal>
-								</goals>
 							</execution>
 						</executions>
 					</plugin>

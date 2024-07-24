@@ -13,16 +13,24 @@
 	<artifactId>basyx.submodelregistry-service-basetests</artifactId>
 	<name>BaSyx Submodel Registry Service Basetests</name>
 	<description>BaSyx Submodel Registry Service Basetests</description>
-	
+
 	<packaging>jar</packaging>
 
 	<properties>
 		<spring-cloud.version>2020.0.4</spring-cloud.version>
-		<start-class>org.eclipse.digitaltwin.basyx.submodelregistry.service.OpenApiGeneratorApplication</start-class>
+		<start-class>
+			org.eclipse.digitaltwin.basyx.submodelregistry.service.OpenApiGeneratorApplication</start-class>
 	</properties>
 
 	<build>
 		<plugins>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-javadoc-plugin</artifactId>
+				<configuration>
+					<skip>true</skip>
+				</configuration>
+			</plugin>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
 				<artifactId>maven-surefire-plugin</artifactId>
